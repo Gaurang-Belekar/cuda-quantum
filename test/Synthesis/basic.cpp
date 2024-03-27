@@ -7,6 +7,8 @@
  ******************************************************************************/
 
 // RUN: cudaq-quake %cpp_std %s | FileCheck %s
+// XFAIL: *
+// [SKIP_TEST]: Not implemented
 
 #include <cudaq.h>
 

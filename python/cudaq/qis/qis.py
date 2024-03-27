@@ -222,3 +222,22 @@ def compute_action(compute, action):
     Apply the U V U^dag given U and V unitaries.
     """
     raise_error
+
+
+def register_operation(unitary, operation_name=None):
+    """
+    Register a new quantum operation at runtime. Users must 
+    provide the unitary matrix as a 2D NumPy array. The operation 
+    name is inferred from the name of the assigned variable. 
+
+    .. code:: python 
+
+        myOp = cudaq.register_operation(unitary)
+
+        @cudaq.kernel
+        def kernel():
+            ...
+            myOp(...)
+            ...
+    """
+    raise_error
