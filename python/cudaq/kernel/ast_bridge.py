@@ -1387,7 +1387,7 @@ class PyASTBridge(ast.NodeVisitor):
                     operands = [self.popValue() for _ in range(numVals)]
                     operands.reverse()
                     params = operands[:numParams]
-                    qubits = operands[numParams:]  #numVals-numParams]
+                    qubits = operands[numParams:]  # `numVals`-`numParams`
                     res = func.CallOp([resTy], node.func.id, params).result
                     quake.UnitaryOp(StringAttr.get(node.func.id), [],
                                     qubits,
@@ -1398,8 +1398,8 @@ class PyASTBridge(ast.NodeVisitor):
                 numTargets = int(np.log2(unitary.shape[0]))
                 # flatten the matrix
                 unitary = list(unitary.flat)
-                # Need to map to an ArrayAttr<ArrayAttr> where each element
-                # is a pair (represented as an array) -> (real, imag)
+                # Need to map to an `ArrayAttr<ArrayAttr>` where each element
+                # is a pair (represented as an array) -> (real, imaginary)
                 arrayAttrList = []
                 for el in unitary:
                     arrayAttrList.append(
@@ -1410,7 +1410,7 @@ class PyASTBridge(ast.NodeVisitor):
                                 [self.popValue() for _ in range(numTargets)],
                                 constantUnitary=unitary)
                 return
-            
+
             if node.func.id in globalKernelRegistry:
                 # If in `globalKernelRegistry`, it has to be in this Module
                 otherKernel = SymbolTable(self.module.operation)[nvqppPrefix +

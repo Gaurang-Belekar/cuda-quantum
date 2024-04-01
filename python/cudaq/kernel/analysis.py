@@ -192,7 +192,7 @@ class CheckAndCorrectFunctionName(ast.NodeTransformer):
 
 def preprocessCustomOperationLambda(unitaryCallable, desiredName):
     """
-    Given a callable custom unitary operation (cudaq.register_operation(lambda param : np.array(...))), 
+    Given a callable custom unitary operation (`cudaq.register_operation(lambda param : np.array(...))`), 
     convert the matrix to a list within the NumPy array and raise the lambda 
     to a function. Return the AST Module for parsing and visitation.
     """

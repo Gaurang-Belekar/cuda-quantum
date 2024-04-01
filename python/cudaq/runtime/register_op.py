@@ -23,7 +23,7 @@ def processQubitIds(opName, *args):
     """
     Return the qubit unique ID integers for a general tuple of 
     kernel arguments, where all arguments are assumed to be qubit-like 
-    (qvector, qview, qubit).
+    (`qvector`, `qview`, `qubit`).
     """
     qubitIds = []
     for a in args:
@@ -84,8 +84,8 @@ class quantum_operation(object):
     @classmethod
     def __call__(cls, *args):
         """
-        Invoke the quantum operation. The args can contain float parameters (of the
-        correct number according to get_num_parameters) and quantum types (qubit, qvector, qview).
+        Invoke the quantum operation. The arguments can contain float parameters (of the
+        correct number according to `get_num_parameters`) and quantum types (`qubit`, `qvector`, `qview`).
         """
         opName = cls.get_name()
         unitary = cls.get_unitary()
@@ -122,8 +122,8 @@ class quantum_operation(object):
     def ctrl(cls, *args):
         """
         Invoke the general controlled version of the quantum operation. 
-        The args can contain float parameters (of the correct number according
-        to get_num_parameters) and quantum types (qubit, qvector, qview).
+        The arguments can contain float parameters (of the correct number according
+        to `get_num_parameters`) and quantum types (`qubit`, `qvector`, `qview`).
         """
         opName = cls.get_name()
         unitary = cls.get_unitary()
@@ -162,8 +162,8 @@ class quantum_operation(object):
     def adj(cls, *args):
         """
         Invoke the general adjoint version of the quantum operation. 
-        The args can contain float parameters (of the correct number according
-        to get_num_parameters) and quantum types (qubit, qvector, qview).
+        The arguments can contain float parameters (of the correct number according
+        to `get_num_parameters`) and quantum types (`qubit`, `qvector`, `qview`).
         """
         opName = cls.get_name()
         unitary = cls.get_unitary()
@@ -207,8 +207,7 @@ def register_operation(unitary, operation_name=None):
     provide the unitary matrix as a 2D NumPy array. The operation 
     name is inferred from the name of the assigned variable. 
 
-    .. code:: python 
-
+    ```python
         myOp = cudaq.register_operation(unitary)
 
         @cudaq.kernel
@@ -216,7 +215,7 @@ def register_operation(unitary, operation_name=None):
             ...
             myOp(...)
             ...
-
+    ```
     """
     if operation_name == None:
         lastFrame = inspect.currentframe().f_back
