@@ -16,8 +16,7 @@ def check_basic(entity):
     counts = cudaq.sample(entity, shots_count=100)
     counts.dump()
     assert len(counts) == 2
-    ## [SKIP_TEST]: Has '10' (and '00') in the output
-    # assert '00' in counts and '11' in counts 
+    assert '00' in counts and '11' in counts
 
 
 def test_basic():
@@ -38,8 +37,8 @@ def test_basic():
 
     check_basic(bell)
 
-    ## [SKIP_TEST]: Not working
-    ## Also works from builder    
+    ## [SKIP_TEST]: Not working because 'CustomQuantumOperation' object is not callable
+    ## Also works from builder
     # kernel = cudaq.make_kernel()
     # qubits = kernel.qalloc(2)
     # custom_h(qubits[0])

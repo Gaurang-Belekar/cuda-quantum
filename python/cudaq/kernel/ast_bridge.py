@@ -994,6 +994,8 @@ class PyASTBridge(ast.NodeVisitor):
             ry(np.pi, qubits)
         ```
         """
+        global globalRegisteredUnitaries
+
         if self.verbose:
             print("[Visit Call] {}".format(ast.unparse(node)))
 
@@ -1394,6 +1396,8 @@ class PyASTBridge(ast.NodeVisitor):
                                     unitary=res)
                     return
 
+                ## ASKME: Handle 'ctrl' and 'adj' separately?
+
                 # how many targets should there be?
                 numTargets = int(np.log2(unitary.shape[0]))
                 # flatten the matrix
@@ -1790,6 +1794,30 @@ class PyASTBridge(ast.NodeVisitor):
                 self.emitFatalError(
                     f'Unknown attribute on quantum operation {node.func.value.id} ({node.func.attr}). {maybeProposeOpAttrFix(node.func.value.id, node.func.attr)}'
                 )
+
+            if node.func.value.id in globalRegisteredUnitaries and node.func.attr == 'ctrl':
+                unitary = globalRegisteredUnitaries[node.func.value.id]
+                # how many targets should there be?
+                numTargets = int(np.log2(unitary.shape[0]))
+                # flatten the matrix
+                unitary = list(unitary.flat)
+                # Need to map to an ArrayAttr<ArrayAttr> where each element
+                # is a pair (represented as an array) -> (real, imag)
+                arrayAttrList = []
+                for el in unitary:
+                    arrayAttrList.append(
+                        DenseF32ArrayAttr.get([np.real(el),
+                                               np.imag(el)]))
+                unitary = ArrayAttr.get(arrayAttrList)
+                targets = [self.popValue() for _ in range(numTargets)]
+                controls = [
+                    self.popValue() for i in range(len(self.valueStack))
+                ]
+                quake.UnitaryOp(StringAttr.get(node.func.value.id),
+                                controls,
+                                targets,
+                                constantUnitary=unitary)
+                return
 
             # We have a `func_name.ctrl`
             if node.func.value.id == 'swap' and node.func.attr == 'ctrl':
