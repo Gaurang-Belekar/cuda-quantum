@@ -1134,15 +1134,16 @@ def UnitaryOp : QuakeOp<"unitary", [AttrSizedOperandSegments]> {
     elements, each element is a 2-tuple, the real and imaginary parts.
   }];
 
-  let arguments = (ins StrAttr:$opName, 
+  let arguments = (ins StrAttr:$opName,                        
                        Variadic<AnyQType>:$controls, 
                        Variadic<RefType>:$targets, 
                        OptionalAttr<ArrayAttr>:$constantUnitary,
-                       Optional<StdvecOf<[Complex<AnyFloat>]>>:$unitary);
-  let results = (outs );
+                       Optional<StdvecOf<[Complex<AnyFloat>]>>:$unitary,
+                       OptionalAttr<UnitAttr>:$is_adj);
+  let results = (outs);
 
   let assemblyFormat = [{
-    (`[` $controls^ `]`)?
+    ( `<` `adj` $is_adj^ `>` )? (`[` $controls^ `]`)?
     $targets (`(` $unitary^ `)`)? `:` functional-type(operands, results) attr-dict
   }];
 

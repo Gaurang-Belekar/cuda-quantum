@@ -45,3 +45,36 @@ def test_basic():
     # custom_x.ctrl(qubits[0], qubits[1])
 
     # check_basic(kernel)
+
+
+def test_custom_adjoint():
+    """Test that adjoint can be called on custom operations."""
+
+    custom_s = cudaq.register_operation(np.array([[1, 0], [0, 1j]]))
+
+    @cudaq.kernel
+    def kernel():
+        q = cudaq.qubit()
+        h(q)
+        custom_s.adj(q)
+        custom_s.adj(q)
+        h(q)
+        mz(q)
+
+    counts = cudaq.sample(kernel)
+    counts.dump()
+    assert counts["1"] == 1000
+
+def test_bad_attribute():
+    """Test that unsupported attributes on custom operations raise error."""
+
+    custom_s = cudaq.register_operation(np.array([[1, 0], [0, 1j]]))
+
+    @cudaq.kernel
+    def kernel():
+        q = cudaq.qubit()
+        custom_s.foo(q)
+        mz(q)
+
+    with pytest.raises(Exception) as error:
+        counts = cudaq.sample(kernel)

@@ -1396,8 +1396,6 @@ class PyASTBridge(ast.NodeVisitor):
                                     unitary=res)
                     return
 
-                ## ASKME: Handle 'ctrl' and 'adj' separately?
-
                 # how many targets should there be?
                 numTargets = int(np.log2(unitary.shape[0]))
                 # flatten the matrix
@@ -1412,7 +1410,8 @@ class PyASTBridge(ast.NodeVisitor):
                 unitary = ArrayAttr.get(arrayAttrList)
                 quake.UnitaryOp(StringAttr.get(node.func.id), [],
                                 [self.popValue() for _ in range(numTargets)],
-                                constantUnitary=unitary)
+                                constantUnitary=unitary,
+                                is_adj=False)
                 return
 
             if node.func.id in globalKernelRegistry:
@@ -1795,14 +1794,22 @@ class PyASTBridge(ast.NodeVisitor):
                     f'Unknown attribute on quantum operation {node.func.value.id} ({node.func.attr}). {maybeProposeOpAttrFix(node.func.value.id, node.func.attr)}'
                 )
 
-            if node.func.value.id in globalRegisteredUnitaries and node.func.attr == 'ctrl':
+            if node.func.value.id in globalRegisteredUnitaries:
+                if node.func.attr == 'ctrl':
+                    is_adj = False
+                elif node.func.attr == 'adj':
+                    is_adj = True
+                else:
+                    self.emitFatalError(
+                        f'Unknown attribute on custom operation {node.func.value.id} ({node.func.attr}).'
+                    )
                 unitary = globalRegisteredUnitaries[node.func.value.id]
                 # how many targets should there be?
                 numTargets = int(np.log2(unitary.shape[0]))
                 # flatten the matrix
                 unitary = list(unitary.flat)
-                # Need to map to an ArrayAttr<ArrayAttr> where each element
-                # is a pair (represented as an array) -> (real, imag)
+                # Need to map to an `ArrayAttr<ArrayAttr>`` where each element
+                # is a pair (represented as an array) -> (real, imaginary)
                 arrayAttrList = []
                 for el in unitary:
                     arrayAttrList.append(
@@ -1811,12 +1818,13 @@ class PyASTBridge(ast.NodeVisitor):
                 unitary = ArrayAttr.get(arrayAttrList)
                 targets = [self.popValue() for _ in range(numTargets)]
                 controls = [
-                    self.popValue() for i in range(len(self.valueStack))
+                    self.popValue() for _ in range(len(self.valueStack))
                 ]
                 quake.UnitaryOp(StringAttr.get(node.func.value.id),
                                 controls,
                                 targets,
-                                constantUnitary=unitary)
+                                constantUnitary=unitary,
+                                is_adj=is_adj)
                 return
 
             # We have a `func_name.ctrl`
