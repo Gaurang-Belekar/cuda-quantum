@@ -37,14 +37,22 @@ def test_basic():
 
     check_basic(bell)
 
-    ## [SKIP_TEST]: Not working because 'CustomQuantumOperation' object is not callable
-    ## Also works from builder
-    # kernel = cudaq.make_kernel()
-    # qubits = kernel.qalloc(2)
-    # custom_h(qubits[0])
-    # custom_x.ctrl(qubits[0], qubits[1])
 
-    # check_basic(kernel)
+@pytest.mark.skip(reason="Not yet supported.")
+def test_builder_mode():
+    """
+    Builder API
+    """
+    kernel = cudaq.make_kernel()
+    # ASKME: Reuse `cudaq.register_op`?
+    kernel.register_op("custom_h", 1. / np.sqrt(2.) * np.array([[1, 1], [1, -1]]))
+    kernel.register_op("custom_x", np.array([[0, 1], [1, 0]]))
+
+    qubits = kernel.qalloc(2)    
+    kernel.custom_h(qubits[0])
+    kernel.custom_x.ctrl(qubits[0], qubits[1])
+
+    check_basic(kernel)
 
 
 def test_custom_adjoint():
@@ -65,6 +73,7 @@ def test_custom_adjoint():
     counts.dump()
     assert counts["1"] == 1000
 
+
 def test_bad_attribute():
     """Test that unsupported attributes on custom operations raise error."""
 
@@ -78,3 +87,40 @@ def test_bad_attribute():
 
     with pytest.raises(Exception) as error:
         counts = cudaq.sample(kernel)
+
+
+@pytest.mark.skip(reason="Not yet supported.")
+def test_parameterized_op():
+    """
+    Test ways to define and use custom quantum operations that can accept parameters.
+    """
+
+    # (a) Using lambda
+    my_rx_op = cudaq.register_operation(lambda theta: np.array([[
+        np.cos(theta / 2), -1j * np.sin(theta / 2)
+    ], [-1j * np.sin(theta / 2), np.cos(theta / 2)]]))
+
+    # (b) Using a regular function
+    def my_unitary(theta: float):
+        return (np.array([[np.exp(-1j * theta / 2), 0],
+                          [0, np.exp(1j * theta / 2)]]))
+
+    my_rz_op = cudaq.register_operation(my_unitary)
+
+    @cudaq.kernel
+    def use_op():
+        qubits = cudaq.qvector(3)
+
+        x(qubits)
+        my_rx_op(np.pi, qubits)
+        r1(-np.pi, qubits)
+        ry(np.pi, qubits)
+        my_rz_op(np.pi, qubits)
+
+    counts = cudaq.sample(use_op)
+    assert counts["111"] == 1000
+
+
+## TODO:
+## Test op on one target
+## Test on multiple qubits

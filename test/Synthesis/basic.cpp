@@ -17,6 +17,16 @@
 #include <iostream>
 #include <vector>
 
+/// Temporary placeholder of macro
+#define cudaq_register_op(NAME, DATA)
+void NAME(Qubits... q) {
+  // process
+}
+
+cudaq_register_op("custom_h",
+                  {{M_SQRT1_2, M_SQRT1_2}, {M_SQRT1_2, -M_SQRT1_2}});
+cudaq_register_op("custom_x", {{0, 1}, {1, 0}});
+
 void custom_operation() __qpu__ {
   cudaq::qvector qubits(2);
   custom_h(qubits[0]);
@@ -24,15 +34,7 @@ void custom_operation() __qpu__ {
 }
 
 int main() {
-  std::vector<std::complex<double>> my_h{{M_SQRT1_2, M_SQRT1_2},
-                                         {M_SQRT1_2, -M_SQRT1_2}};
-  std::vector<std::complex<double>> my_x{{0, 1}, {1, 0}};
-
-  auto custom_h = cudaq::register_operation(my_h);
-  auto custom_x = cudaq::register_operation(my_x);
-  
   auto result = cudaq::sample(custom_operation);
-
   std::cout << result.most_probable() << '\n';
   return 0;
 }
