@@ -82,6 +82,7 @@ ADD "scripts/migrate_assets.sh" /cuda-quantum/scripts/migrate_assets.sh
 ADD "scripts/cudaq_set_env.sh" /cuda-quantum/scripts/cudaq_set_env.sh
 ADD "targettests" /cuda-quantum/targettests
 ADD "test" /cuda-quantum/test
+ADD "python/tests/mlir" /cuda-quantum/python/tests/mlir
 ADD "tools" /cuda-quantum/tools
 ADD "tpls/customizations" /cuda-quantum/tpls/customizations
 ADD "tpls/json" /cuda-quantum/tpls/json
@@ -176,7 +177,9 @@ RUN cd /cuda-quantum && source scripts/configure_build.sh && \
     "$LLVM_INSTALL_PREFIX/bin/llvm-lit" -v build/test \
         --param nvqpp_site_config=build/test/lit.site.cfg.py && \
     "$LLVM_INSTALL_PREFIX/bin/llvm-lit" -v build/targettests \
-        --param nvqpp_site_config=build/targettests/lit.site.cfg.py
+        --param nvqpp_site_config=build/targettests/lit.site.cfg.py && \
+    "$LLVM_INSTALL_PREFIX/bin/llvm-lit" -v build/python/tests/mlir \
+        --param nvqpp_site_config=build/python/tests/mlir/lit.site.cfg.py
 
 
 # Tests for the Python wheel are run post-installation.
